@@ -1,0 +1,71 @@
+<agent_config os="rhel: 6">
+  
+  <wodle name="cis-cat">
+    <disabled>no</disabled>
+    <timeout>3600</timeout>
+    <interval>90d</interval>
+    <scan-on-start>yes</scan-on-start>
+  
+    <java_path>/opt/ossec/wodles/ciscat/content/java/bin</java_path>
+    <ciscat_path>/opt/ossec/wodles/ciscat/content/scanner</ciscat_path>
+  
+    <content type="xccdf" path="/opt/ossec/wodles/ciscat/content/scanner/benchmarks/CIS_Red_Hat_Enterprise_Linux_6_Benchmark_v2.0.2-xccdf.xml">
+      <profile>xccdf_org.cisecurity.benchmarks_profile_Level_2_-_Server</profile>
+    </content>
+  </wodle>
+  
+  <localfile>
+    <log_format>full_command</log_format>
+    <alias>ciscat-java-check</alias>
+    <command>if [ $(find /opt/ossec/wodles/ciscat/content/java/bin/ -executable -type f 2>/dev/null | wc -l) -eq 1 ]; then echo "Check: Passed"; else echo "Check: Failed"; fi</command>
+    <frequency>86400</frequency>
+  </localfile>
+  
+  <localfile>
+    <log_format>full_command</log_format>
+    <alias>ciscat-scanner-check</alias>
+    <command>if [ $(ls /opt/ossec/wodles/ciscat/content/scanner/ 2>/dev/null | wc -l) -eq 4 ]; then echo "Check: Passed"; else echo "Check: Failed"; fi</command>
+    <frequency>86400</frequency>
+  </localfile>
+  
+  <localfile>
+    <log_format>full_command</log_format>
+    <alias>ciscat-ossec-log</alias>
+    <command>grep 'wazuh-modulesd:ciscat:' /opt/ossec/logs/ossec.log | tail -20</command>
+    <frequency>86400</frequency>
+  </localfile>
+  
+</agent_config>
+  
+<agent_config>
+  
+<!--
+Wazuh - TransUnion project
+Syscheck configuration for C2Online
+-->
+  
+<!-- Realtime scan -->
+  
+<syscheck>
+  
+    <!-- Full directories -->
+  
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/jboss/jboss-eap-6.4/modules/system/layers/base/tuc/online/logging</directories>
+  
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/Canada/config/c2online</directories>
+  
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/Canada/config/spring/c2online</directories>
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/Canada/config/spring/tuc-addons</directories>
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/Canada/config/spring/tuc-commons</directories>
+    <directories check_all="yes" report_changes="yes" realtime="yes">/opt/Canada/config/spring/tuc-merge</directories>
+  
+  
+    <!-- Specific files -->
+    <directories check_all="yes" report_changes="no" realtime="yes" restrict=".war$">/opt/deploy/c2online*.war</directories>
+  
+    <!-- Ignore folders -->
+    <ignore type="sregex">.log$</ignore>
+  
+</syscheck>
+  
+</agent_config>
